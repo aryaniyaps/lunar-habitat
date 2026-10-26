@@ -30,6 +30,9 @@ TCP_OFFSET = 0.1034        # flange to fingertip centre along hand z
 SUCCESS_XY = 0.02
 SUCCESS_Z = 0.015
 SUCCESS_TILT = math.radians(8)
+# Success ends the episode, so its bonus must beat hovering beside a placed panel forever
+# (max stage 1.0 per step is worth 1 / (1 - gamma) = 50 at gamma = 0.98).
+SUCCESS_BONUS = 75.0
 
 
 class LunarPanelEnv(gym.Env):
@@ -229,7 +232,7 @@ class LunarPanelEnv(gym.Env):
         if placed:
             stage = max(stage, 0.92 + 0.08 * float(not grasped))
         upright_pen = 0.1 * min(tilt, 1.0) if lifted or placed else 0.0
-        reward = stage - upright_pen + (10.0 if success else 0.0)
+        reward = stage - upright_pen + (SUCCESS_BONUS if success else 0.0)
         self.stage_best = max(self.stage_best, stage)
         info = dict(success=bool(success), placed=bool(placed), grasped=bool(grasped), stage=stage,
                     xy_err=float(xy_d), z_err=float(z_d), tilt_deg=math.degrees(tilt), gravity=self.g)
