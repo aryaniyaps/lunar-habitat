@@ -4,6 +4,10 @@ A rover-mounted robot arm builds a habitat on the Moon. It picks a sintered-rego
 its deck and seats it into the gap in a half-built habitat ring, under lunar gravity (1.62 m/s²).
 The policy is trained end to end with reinforcement learning on a CPU.
 
+[![The trained SAC policy placing four panels in a row under lunar gravity](media/lunar_panel_hero.gif)](media/lunar_panel_hero.mp4)
+
+*The trained policy placing four panels in a row at 1.62 m/s². Click for the full-resolution video.*
+
 The robot is NVIDIA's open SimReady Franka Panda from
 [`nvidia/isaacsim-assets`](https://huggingface.co/datasets/nvidia/isaacsim-assets) on Hugging Face. It is
 converted from OpenUSD to MuJoCo by a converter in this repo, so it runs without Isaac Sim or an
@@ -55,8 +59,15 @@ upright within 2 cm, released, and at rest.
 
 Successful placements land with a median 7 mm position error and 0.1° tilt.
 
-Videos: `videos/lunar_panel_hero.mp4` (4/4 placements), `videos/lunar_panel_closeup.mp4`,
-and `videos/lunar_panel_earth_gravity.mp4` (the same policy failing at Earth gravity).
+| Close-up of a placement (Moon) | Same policy at Earth gravity |
+|---|---|
+| [![Close-up of the panel being seated in the U-channel socket](media/lunar_panel_closeup.gif)](media/lunar_panel_closeup.mp4) | [![The lunar-trained policy failing to place the panel at Earth gravity](media/lunar_panel_earth_gravity.gif)](media/lunar_panel_earth_gravity.mp4) |
+| The panel is lowered into the 7 mm U-channel, released, and the arm retreats. | Trained only at 1/6 g, the policy swings a load 6× heavier and misses the socket (0/3 in the full video). |
+
+Full videos: [hero, 4/4 placements](media/lunar_panel_hero.mp4) ·
+[close-up](media/lunar_panel_closeup.mp4) ·
+[Earth gravity](media/lunar_panel_earth_gravity.mp4) ·
+[scripted baseline on the Moon](media/scripted_moon.mp4).
 
 - **Training:** 600k steps from scratch, then 200k steps of fine-tuning after a reward fix (below).
   This took about 1.5 hours of wall time on a 16-core CPU, with 10 parallel environments and the
