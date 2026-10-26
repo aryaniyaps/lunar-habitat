@@ -1,0 +1,28 @@
+[project]
+name = "lunar-habitat"
+version = "0.1.0"
+description = "Robot arms assemble a lunar habitat in 1/6 g: NVIDIA SimReady assets in MuJoCo, trained end to end with RL"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "mujoco>=3.3",
+  "gymnasium>=1.0",
+  "numpy",
+  "usd-core",
+  "huggingface_hub",
+  "trimesh",
+  "stable-baselines3",
+  "torch",
+  "imageio[ffmpeg]",
+  "tensorboard",
+]
+
+[tool.uv]
+package = false
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }

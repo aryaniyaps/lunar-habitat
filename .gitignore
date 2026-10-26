@@ -1,0 +1,7 @@
+assets/nvidia/
+assets/converted/*/meshes/
+runs/
+videos/
+__pycache__/
+*.pyc
+MUJOCO_LOG.TXT
