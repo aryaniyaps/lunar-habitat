@@ -48,23 +48,26 @@ and 18 kg mass match the datasheet.
 100 held-out episodes per cell, with seeds disjoint from training. Success means the panel is seated
 upright within 2 cm, released, and at rest.
 
-| Controller | Moon (1.62 m/s²) | Earth (9.81 m/s²) | Median time to place |
+| Controller | Moon (1.62 m/s²) | Earth (9.81 m/s²) | Median time to place (Moon) |
 |---|---|---|---|
-| **SAC policy** (trained on the Moon) | **81%** | 2% | 6.5 s |
+| **SAC policy** (`models/lunar_panel_sac.zip`, trained on the Moon only) | **100%** | 27% | 3.4 s |
 | Scripted baseline | 42% | 1% | 8.8 s |
 
-Successful placements land with a median 7 mm position error.
+Successful placements land with a median 7 mm position error and 0.1° tilt.
 
-- **Training:** 600k steps from scratch, then 100k steps of fine-tuning after a reward fix (below).
-  This took about 1.5 hours on a 16-core CPU, with 10 parallel environments and the replay buffer
-  seeded with 200 noisy scripted episodes.
+Videos: `videos/lunar_panel_hero.mp4` (4/4 placements), `videos/lunar_panel_closeup.mp4`,
+and `videos/lunar_panel_earth_gravity.mp4` (the same policy failing at Earth gravity).
+
+- **Training:** 600k steps from scratch, then 200k steps of fine-tuning after a reward fix (below).
+  This took about 1.5 hours of wall time on a 16-core CPU, with 10 parallel environments and the
+  replay buffer seeded with noisy scripted episodes.
 - **Reward hacking, found and fixed:** at 600k steps the policy seated and released panels but
   never moved away, so it never counted as a success. Ending the episode paid +10, while hovering
-  beside a placed panel paid 1.0 per step, worth about 50 at γ = 0.98. Raising the terminal bonus
-  to 75 took evaluation success from 0% to 90% within 100k steps.
-- **Earth gravity:** both controllers fail at 9.81 m/s². The arm tracks worse under the 6× heavier
-  load, and the policy never saw that regime. A gravity-randomised policy is the next experiment
-  (`--gravity 1.0 9.81`).
+  beside a placed panel paid 1.0 per step, worth about 50 at γ = 0.98. With a terminal bonus of
+  75, evaluation success went from 0% to 90% after 100k steps and 100% after 200k.
+- **Gravity specialisation:** the policy only ever saw lunar gravity. At Earth gravity it succeeds
+  27% of the time: it carries the panel with momentum and timing tuned for a load 6× lighter. A
+  gravity-randomised policy (`--gravity 1.0 9.81`) is the next experiment.
 
 ## Run it
 

@@ -1,0 +1,12 @@
+[
+ {
+  "gravity": 9.81,
+  "episodes": 100,
+  "successes": 27,
+  "success_rate": 0.27,
+  "median_time_s": 4.65,
+  "median_xy_error_mm": 6.437811389290301,
+  "median_tilt_deg": 0.0184843469299669,
+  "wall_s": 75.8
+ }
+]
