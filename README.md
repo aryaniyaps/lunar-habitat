@@ -45,10 +45,26 @@ and 18 kg mass match the datasheet.
 
 ## Results
 
-| Controller | Moon (1.62 m/s²) | Earth (9.81 m/s²) |
-|---|---|---|
-| Scripted baseline | 13/20 | 2/20 |
-| SAC policy | training | — |
+100 held-out episodes per cell, with seeds disjoint from training. Success means the panel is seated
+upright within 2 cm, released, and at rest.
+
+| Controller | Moon (1.62 m/s²) | Earth (9.81 m/s²) | Median time to place |
+|---|---|---|---|
+| **SAC policy** (trained on the Moon) | **81%** | 2% | 6.5 s |
+| Scripted baseline | 42% | 1% | 8.8 s |
+
+Successful placements land with a median 7 mm position error.
+
+- **Training:** 600k steps from scratch, then 100k steps of fine-tuning after a reward fix (below).
+  This took about 1.5 hours on a 16-core CPU, with 10 parallel environments and the replay buffer
+  seeded with 200 noisy scripted episodes.
+- **Reward hacking, found and fixed:** at 600k steps the policy seated and released panels but
+  never moved away, so it never counted as a success. Ending the episode paid +10, while hovering
+  beside a placed panel paid 1.0 per step, worth about 50 at γ = 0.98. Raising the terminal bonus
+  to 75 took evaluation success from 0% to 90% within 100k steps.
+- **Earth gravity:** both controllers fail at 9.81 m/s². The arm tracks worse under the 6× heavier
+  load, and the policy never saw that regime. A gravity-randomised policy is the next experiment
+  (`--gravity 1.0 9.81`).
 
 ## Run it
 
@@ -60,6 +76,7 @@ uv run python tools/usd_to_mjcf.py assets/nvidia/frankarobotics_frankapanda_fran
     --variant MuJoCo=Enabled --out assets/converted/franka --name franka
 uv run python scripts/scripted_demo.py --episodes 20                 # baseline
 uv run python scripts/train.py --steps 3000000 --demos 200 --run moon_sac
+uv run python scripts/evaluate.py runs/moon_sac/best_model.zip --episodes 100 --gravity 1.62 9.81
 MUJOCO_GL=egl uv run python scripts/render_policy.py runs/moon_sac/best_model.zip --out videos/moon.mp4
 ```
 
