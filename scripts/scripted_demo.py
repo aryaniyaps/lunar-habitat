@@ -13,15 +13,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from lunar_habitat.env import LunarPanelEnv  # noqa: E402
 
 
-def run_episode(env, frames=None, rng=None):
+def run_episode(env, frames=None, rng=None, on_step=None, noise=0.0):
     obs, _ = env.reset(seed=int(rng.integers(1 << 30)) if rng is not None else None)
     info = {}
+    state = {"obs": obs}
 
     def go(target_fn, grip, n, gain=10, tol=None):
         nonlocal info
         for _ in range(n):
             a = np.clip((target_fn() - env.tcp()) * gain, -1, 1)
-            _, _, term, trunc, info = env.step([*a, grip])
+            if noise and rng is not None:
+                a = np.clip(a + rng.normal(0, noise, 3), -1, 1)
+            act = np.array([*a, grip], dtype=np.float32)
+            nobs, r, term, trunc, info = env.step(act)
+            if on_step is not None:
+                on_step(state["obs"], act, r, nobs, term, trunc, info)
+            state["obs"] = nobs
             if frames is not None:
                 frames.append(env.render())
             if term or trunc:

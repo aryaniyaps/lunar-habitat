@@ -240,9 +240,20 @@ def build(cfg: SceneConfig = SceneConfig()) -> mujoco.MjModel:
                         material="beacon", contype=0, conaffinity=0)
 
     # cameras
-    wb.add_camera(name="hero", pos=[-1.1, -1.9, 1.15], xyaxes=[0.86, -0.51, 0, 0.22, 0.37, 0.90], fovy=50)
-    wb.add_camera(name="wide", pos=[-2.6, -3.4, 2.4], xyaxes=[0.8, -0.6, 0, 0.3, 0.4, 0.87], fovy=50)
-    wb.add_camera(name="top", pos=[0.7, 0, 3.2], xyaxes=[0, -1, 0, 1, 0, 0], fovy=60)
+    def look(name, pos, target, fovy):
+        pos, target = np.array(pos, float), np.array(target, float)
+        f = target - pos
+        f /= np.linalg.norm(f)
+        x = np.cross(f, [0, 0, 1.0])
+        x /= np.linalg.norm(x)
+        y = np.cross(x, f)
+        wb.add_camera(name=name, pos=pos.tolist(), xyaxes=[*x, *y], fovy=fovy)
+
+    work = [0.5, -0.08, 0.36]
+    look("hero", [-0.15, -1.6, 1.3], [0.5, -0.05, 0.42], 52)        # side-on: rack, carry and the gap in one frame
+    look("closeup", [1.45, -0.35, 0.62], [0.6, -0.05, 0.32], 50)  # from inside the habitat, facing the rover
+    look("wide", [-1.6, -2.6, 1.7], [1.2, 0.0, 0.2], 50)
+    look("top", [0.6, -0.01, 3.0], [0.6, 0.0, 0.0], 60)
     return spec.compile()
 
 
